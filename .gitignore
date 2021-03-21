@@ -126,6 +126,8 @@ venv.bak/
 dmypy.json
 
 # Pyre type checker
+.idea
+/.idea
 .pyre/
 /image_data/3cs8aNRtF8g.jpg
 /.idea/DSнир.iml
