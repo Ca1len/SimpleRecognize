@@ -10,20 +10,22 @@ def input_params() -> dict:
               'output': input("Enter output path: "),
               'xc': input("x = "),
               'yc': input("y = "),
-              'delta': int(input("Enter the amount of spread: "))
+              'delta': int(input("Enter the amount of spread: ")),
+              'color': [int(elem) if elem.isdigit() else 255 for elem in
+                        input("Enter color like '[0-255] [0-255] [0-255]': ").split(" ")]
               }
     if params['xc'].isdigit():
         params['xc'] = int(params['xc'])
     else:
-        params['xc'] = math.ceil(np.array(cv.imread(params['input'])).shape[1] / 2)
+        params['xc'] = math.ceil(params['input'].shape[1] / 2)
     if params['yc'].isdigit():
         params['yc'] = int(params['yc'])
     else:
-        params['yc'] = math.ceil(np.array(cv.imread(params['input'])).shape[0] / 2)
+        params['yc'] = math.ceil(params['input'].shape[0] / 2)
     return params
 
 
-def create_circle(arr: np.ndarray, delta: int, xc=None, yc=None) -> {int: [int, int]}:
+def create_circle(arr: np.ndarray, delta: int, xc: int, yc: int) -> {int: [int, int]}:
     """
     Calculates the coordinates of the circle border
     \n:return Dictionary, the keys of which is the y coordinate,
@@ -43,12 +45,12 @@ def create_circle(arr: np.ndarray, delta: int, xc=None, yc=None) -> {int: [int, 
     return a
 
 
-def cf(img_arr: np.ndarray) -> int:
+def cf(img_arr: np.ndarray) -> []:
     df = pd.DataFrame(img_arr.T.reshape(-1, 3), columns=['R', 'G', 'B'])
     if df.B.mean() - df.B.min() < df.B.max() - df.B.mean():
-        return math.ceil(df.B.mean() + df.B.std())
+        return ['white', math.ceil(df.B.mean() + df.B.std())]
     else:
-        return math.ceil(df.B.mean() - df.B.std())
+        return ['black', math.ceil(df.B.mean() - df.B.std())]
 
 
 def calculate_boarder(img, kf: int) -> []:
@@ -106,20 +108,31 @@ def check_area_coincidences(area: dict, circle: dict) -> bool:
     return False
 
 
-def painter(contours: list, img_arr: np.ndarray) -> np.ndarray:
-    for y in range(img_arr.shape[0]):
-        for x in range(img_arr.shape[1]):
-            img_arr[y][x] = [0, 0, 0]
-    img_arr = cv.drawContours(img_arr, contours, -1, (255, 255, 255), cv.FILLED, cv.LINE_AA, maxLevel=1)
+def painter(contours: list, img_arr: np.ndarray, area_color: str, color=None) -> np.ndarray:
+    if color is None:
+        color = [255, 0, 0]
+        # if area_color == 'white':
+        #     color = [255, 255, 255]
+        # elif area_color == 'black':
+        #     color = [0, 0, 0]
+    if area_color == 'white':
+        for y in range(img_arr.shape[0]):
+            for x in range(img_arr.shape[1]):
+                img_arr[y][x] = [0, 0, 0]
+    elif area_color == 'black':
+        for y in range(img_arr.shape[0]):
+            for x in range(img_arr.shape[1]):
+                img_arr[y][x] = [255, 255, 255]
+    img_arr = cv.drawContours(img_arr, contours, -1, color, cv.FILLED, cv.LINE_AA, maxLevel=1)
     return img_arr
 
 
 def main():
     inputs = input_params()
     circle = create_circle(inputs['input'], inputs['delta'], inputs['xc'], inputs['yc'])
-    ans = calculate_boarder(inputs['input'], cf(inputs['input']))
-    new_img = painter(check_coincidences(circle, ans[1], ans[0]),  inputs['input'])
-    #  paint_circle(new_img, circle)
+    ans = calculate_boarder(inputs['input'], cf(inputs['input'])[1])
+    new_img = painter(check_coincidences(circle, ans[1], ans[0]),  inputs['input'], cf(inputs['input'])[0],
+                      inputs['color'])
     Image.fromarray(new_img).save(inputs['output'])
 
 
