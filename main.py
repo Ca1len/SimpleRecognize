@@ -8,7 +8,9 @@ import math
 def input_params() -> dict:
     """
     Function for data entry
-    \n:return Parameter's dictionary
+
+    Returns:
+         Parameter's dictionary
     """
     params = {'input': cv.imread(input("Enter input file's path: ")),
               'output': input("Enter output path: "),
@@ -32,8 +34,10 @@ def input_params() -> dict:
 def create_circle(arr: np.ndarray, delta: int, xc: int, yc: int) -> {int: [int, int]}:
     """
     Calculates the coordinates of the circle border
-    \n:return Dictionary, the keys of which is the y coordinate,
-    the values are an array with boundaries along the x coordinate
+
+    Returns:
+         Dictionary, the keys of which is the y coordinate,
+         the values are an array with boundaries along the x coordinate
     """
     a = {}  # coord
     for y in range(yc-delta, yc+delta+1):
@@ -54,7 +58,9 @@ def cf(img_arr: np.ndarray) -> []:
     Calculates the color border
     The mean is calculated and the standard deviation is added to it,
     or the standard deviation is subtracted from the mean
-    :return List[color, color boarder]
+
+    Returns:
+         List[color, color boarder]
     """
     df = pd.DataFrame(img_arr.T.reshape(-1, 3), columns=['R', 'G', 'B'])
     if df.B.mean() - df.B.min() < df.B.max() - df.B.mean():
@@ -66,7 +72,9 @@ def cf(img_arr: np.ndarray) -> []:
 def calculate_boarder(img, kf: int) -> []:
     """
     Finds and calculates the contours of the desired objects
-    :return 2 data structures of the same content, [np.ndarray, dict]
+
+    Returns:
+         2 data structures of the same content, [np.ndarray, dict]
     """
     hsv_min = np.array((0, 0, kf), np.uint8)
     hsv_max = np.array((255, 255, 255), np.uint8)
@@ -105,7 +113,9 @@ def calculate_boarder(img, kf: int) -> []:
 def check_coincidences(circle: dict, contours_dict: list, contours: list) -> list:
     """
     Selection of the desired contours
-    :return Selected contours, np.ndarray
+
+    Returns:
+         Selected contours, np.ndarray
     """
     contours = [contours[contour_index] for contour_index in range(len(contours))
                 if check_area_coincidences(contours_dict[contour_index], circle)]
@@ -115,7 +125,9 @@ def check_coincidences(circle: dict, contours_dict: list, contours: list) -> lis
 def check_area_coincidences(area: dict, circle: dict) -> bool:
     """
     Checking the intersection of the contour with the search area
-    :return bool
+
+    Returns:
+         bool
     """
     for y, x_list in area.items():
         circle_x_coords = circle.get(y, [])
@@ -133,7 +145,9 @@ def check_area_coincidences(area: dict, circle: dict) -> bool:
 def painter(contours: list, img_arr: np.ndarray, area_color: str, color=None) -> np.ndarray:
     """
     Draws a new image with found areas
-    :return np.ndarray
+
+    Returns:
+        np.ndarray
     """
     if color is None:
         color = [255, 0, 0]
