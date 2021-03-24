@@ -6,6 +6,10 @@ import math
 
 
 def input_params() -> dict:
+    """
+    Function for data entry
+    \n:return Parameter's dictionary
+    """
     params = {'input': cv.imread(input("Enter input file's path: ")),
               'output': input("Enter output path: "),
               'xc': input("x = "),
@@ -46,6 +50,12 @@ def create_circle(arr: np.ndarray, delta: int, xc: int, yc: int) -> {int: [int, 
 
 
 def cf(img_arr: np.ndarray) -> []:
+    """
+    Calculates the color border
+    The mean is calculated and the standard deviation is added to it,
+    or the standard deviation is subtracted from the mean
+    :return List[color, color boarder]
+    """
     df = pd.DataFrame(img_arr.T.reshape(-1, 3), columns=['R', 'G', 'B'])
     if df.B.mean() - df.B.min() < df.B.max() - df.B.mean():
         return ['white', math.ceil(df.B.mean() + df.B.std())]
@@ -54,6 +64,10 @@ def cf(img_arr: np.ndarray) -> []:
 
 
 def calculate_boarder(img, kf: int) -> []:
+    """
+    Finds and calculates the contours of the desired objects
+    :return 2 data structures of the same content, [np.ndarray, dict]
+    """
     hsv_min = np.array((0, 0, kf), np.uint8)
     hsv_max = np.array((255, 255, 255), np.uint8)
     hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)  # меняем цветовую модель с BGR на HSV
@@ -89,12 +103,20 @@ def calculate_boarder(img, kf: int) -> []:
 
 
 def check_coincidences(circle: dict, contours_dict: list, contours: list) -> list:
+    """
+    Selection of the desired contours
+    :return Selected contours, np.ndarray
+    """
     contours = [contours[contour_index] for contour_index in range(len(contours))
                 if check_area_coincidences(contours_dict[contour_index], circle)]
     return contours
 
 
 def check_area_coincidences(area: dict, circle: dict) -> bool:
+    """
+    Checking the intersection of the contour with the search area
+    :return bool
+    """
     for y, x_list in area.items():
         circle_x_coords = circle.get(y, [])
         for circle_x in circle_x_coords:
@@ -109,6 +131,10 @@ def check_area_coincidences(area: dict, circle: dict) -> bool:
 
 
 def painter(contours: list, img_arr: np.ndarray, area_color: str, color=None) -> np.ndarray:
+    """
+    Draws a new image with found areas
+    :return np.ndarray
+    """
     if color is None:
         color = [255, 0, 0]
         # if area_color == 'white':
