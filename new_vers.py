@@ -76,17 +76,17 @@ def check_arrays(a: np.ndarray, b: list):
     if len(a) != len(b):
         return False
     for i in range(len(a)):
-        if type(a[i]) != int and type(b[i]) != int:
-            try:
+        try:
+            if type(a[i]) != int and type(b[i]) != int:
                 if check_arrays(a[i], b[i]):
                     continue
                 else:
                     return False
-            except:
+            elif a[i] == b[i]:
+                return True
+            else:
                 return False
-        elif a[i] == b[i]:
-            return True
-        else:
+        except:
             return False
 
 
